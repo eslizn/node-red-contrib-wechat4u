@@ -1,0 +1,68 @@
+<script type="text/javascript">
+    const withAuthorization = (xhr) => {
+        xhr.setRequestHeader('Node-RED-API-Version', 'v2');
+        if (RED.settings.get("auth-tokens")) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' + RED.settings.get("auth-tokens").access_token);
+        }
+    }
+
+    RED.nodes.registerType('wechat4u', {
+        category: 'network',
+        paletteLabel: 'wechat4u',
+        color: '#a6bbcf',
+        defaults: {
+            name: {value: 'wechat4u'},
+            puppet: {value: 'wechat4u-puppet-wechat'},
+            token: {value: ''}
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "wechat4u-logo.png",
+        label: function () {
+            return this.name || 'wechat4u';
+        },
+        oneditprepare: function () {
+            this.refresh = true;
+            if (!this.interval) {
+                this.interval = () => {
+                    if (!this.interval) {
+                        return;
+                    }
+                    $.ajax({
+                        url: '/context/node/' + this.id,
+                        dataType: 'json',
+                        beforeSend: withAuthorization,
+                    }).then((data) => {
+                        data = Object.values(data).length ? Object.values(data)[0] : data;
+                        if (data && data.qrcode && data.qrcode.msg && data.qrcode.msg.indexOf('https://') === 0) {
+                            $('#node-input-qrcode').attr('src', data.qrcode.msg.replace('/l/', '/qrcode/'));
+                            $('#node-input-qrcode').parent().show();
+                        } else {
+                            $('#node-input-qrcode').parent().hide();
+                        }
+                    }).fail(() => {
+                        console.log(arguments);
+                    }).always(() => {
+                        if (this.refresh) {
+                            setTimeout(this.interval, 3000);
+                        }
+                    });
+                };
+            }
+            this.interval();
+        },
+        oneditcancel: function () {
+            this.refresh = false;
+        },
+        oneditsave: function () {
+            this.refresh = false;
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="wechat4u">
+    <div class="form-row" style="display:none;">
+        <label for="node-input-qrcode"><i class="fa fa-qrcode"></i> QRCode</label>
+        <img id="node-input-qrcode" src="" alt=""/>
+    </div>
+</script>

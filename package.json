@@ -1,0 +1,37 @@
+{
+  "name": "node-red-contrib-wechat4u",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eslizn/node-red-contrib-wechat4u.git"
+  },
+  "node-red": {
+    "nodes": {
+      "wechat4u": "wechat4u.js"
+    }
+  },
+  "dependencies": {
+    "wechat4u": "github:eslizn/wechat4u"
+  },
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "node-red",
+    "wechat4u"
+  ],
+  "author": "eslizn <eslizn@gmail.com>",
+  "devDependencies": {
+    "node-red-node-test-helper": "^0.2.7"
+  },
+  "bugs": {
+    "url": "https://github.com/eslizn/node-red-contrib-wechat4u/issues"
+  },
+  "homepage": "https://github.com/eslizn/node-red-contrib-wechat4u#readme",
+  "directories": {
+    "test": "test"
+  }
+}
