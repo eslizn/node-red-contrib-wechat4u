@@ -61,7 +61,7 @@ module.exports = async function (RED) {
 
 		//uuid
 		wechat.on('uuid', (uuid) => {
-			this.context().set('qrcode', 'https://login.weixin.qq.com/qrcode/' + uuid);
+			this.context().set('qrcode', 'https://login.weixin.qq.com/qrcode/' + uuid, () => {});
 		});
 
 		//user-avatar
@@ -77,8 +77,8 @@ module.exports = async function (RED) {
 				this.error('login event can not found selfId');
 				return;
 			}
-			this.context().set('qrcode', '');
-			this.context().set('session', wechat.botData);
+			this.context().set('qrcode', '', () => {});
+			this.context().set('session', wechat.botData, () => {});
 		});
 
 		//logout
