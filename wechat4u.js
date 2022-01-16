@@ -96,8 +96,7 @@ module.exports = async function (RED) {
 		wechat.on('message', async (msg) => {
 			this.refresh();
 			if (msg.MsgType in types) {
-				msg.Bot = wechat;
-				this.send({topic: types[msg.MsgType], payload: msg});
+				this.send({topic: types[msg.MsgType], payload: msg, bot: wechat});
 			}
 		});
 
