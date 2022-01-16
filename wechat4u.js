@@ -21,21 +21,25 @@ const types = {
 module.exports = async function (RED) {
 	RED.nodes.registerType('wechat4u', function (config) {
 		RED.nodes.createNode(this, config);
-
 		this.refresh = () => {
 			if (instances[config.id].state === instances[config.id].CONF.STATE.login) {
 				this.status({fill: 'green', shape: 'dot', text: 'online'});
 			} else {
 				this.status({fill: 'red', shape: 'ring', text: 'offline'});
-				this.context().get('session', (err, data) => {
-					instances[config.id].botData = data;
-					if (instances[config.id].PROP.uin) {
-						instances[config.id].restart();
-					} else {
-						instances[config.id].start();
-					}
-				});
 			}
+		}
+
+		this.start = () => {
+			this.context().get('session', (err, data) => {
+				if (data) {
+					instances[config.id].botData = data;
+				}
+				if (instances[config.id].PROP.uin) {
+					instances[config.id].restart();
+				} else {
+					instances[config.id].start();
+				}
+			});
 		}
 
 		if (!(config.id in instances)) {
@@ -82,6 +86,7 @@ module.exports = async function (RED) {
 		//logout
 		instances[config.id].on('logout', async () => {
 			this.refresh();
+			this.start();
 		});
 
 		//contacts-updated
@@ -99,11 +104,10 @@ module.exports = async function (RED) {
 
 		//error
 		instances[config.id].on('error', async (err) => {
-			this.refresh();
 			this.error(err);
 		});
 
-		//refresh
-		this.refresh();
+		//start
+		this.start();
 	});
 }
