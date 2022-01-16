@@ -36,7 +36,6 @@ module.exports = async function (RED) {
 		}
 
 		if (!(config.id in instances)) {
-			console.log(this.context().get('session'));
 			instances[config.id] = new Wechat(this.context().get('session') || []);
 		}
 
@@ -81,7 +80,7 @@ module.exports = async function (RED) {
 		instances[config.id].on('message', async (msg) => {
 			this.refresh();
 			if (msg.MsgType in types) {
-				this.send({topic: msg.MsgType, payload: msg});
+				this.send({topic: types[msg.MsgType], payload: msg});
 			}
 		});
 
