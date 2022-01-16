@@ -30,6 +30,7 @@ module.exports = async function (RED) {
 		}
 
 		this.start = () => {
+			this.refresh();
 			this.context().get('session', (err, data) => {
 				if (data) {
 					instances[config.id].botData = data;
