@@ -1,29 +1,32 @@
-import Wechat from 'wechat4u'
+const Wechat = require('wechat4u');
 
 const instances = {};
+const types = {
+	1: 'Text',
+	3: 'Image',
+	34: 'Voice',
+	37: 'Verify',
+	40: 'PossibleFriend',
+	42: 'ShareCard',
+	43: 'Video',
+	47: 'Emoticon',
+	48: 'Location',
+	49: 'App',
+	62: 'MicroVideo',
+	9999: 'Notice',
+	10002: 'Recalled',
+	1e4: 'Sys',
+};
 
 module.exports = async function (RED) {
 	RED.nodes.registerType('wechat4u', function (config) {
 		RED.nodes.createNode(this, config);
 
 		this.refresh = () => {
-			if (this.offline()) {
-				this.status({fill: 'red', shape: 'ring', text: 'offline'});
-			} else {
+			if (instances[config.id].state === instances[config.id].CONF.STATE.login) {
 				this.status({fill: 'green', shape: 'dot', text: 'online'});
-			}
-		}
-
-		this.offline = () => {
-			return instances[config.id].state === instances[config.id].CONF.STATE.logout;
-		}
-
-		this.online = () => {
-			return !this.offline();
-		}
-
-		this.start = () => {
-			if (this.offline()) {
+			} else {
+				this.status({fill: 'red', shape: 'ring', text: 'offline'});
 				if (instances[config.id].PROP.uin) {
 					instances[config.id].restart();
 				} else {
@@ -33,18 +36,15 @@ module.exports = async function (RED) {
 		}
 
 		if (!(config.id in instances)) {
-			instances[config.id] = new Wechat();
+			console.log(this.context().get('session'));
+			instances[config.id] = new Wechat(this.context().get('session') || []);
 		}
-
-		instances[config.id].on('uuid', (uuid) => {
-			this.refresh();
-			this.context().set('qrcode', 'https://login.weixin.qq.com/qrcode/' + uuid);
-		});
 
 		this.on('close', async (removed, done) => {
 			if (removed) {
-				instances[config.id].stop();
+				await instances[config.id].stop();
 			}
+			done();
 		});
 
 		this.on('input', async (msg) => {
@@ -55,6 +55,11 @@ module.exports = async function (RED) {
 			}
 		});
 
+		//uuid
+		instances[config.id].on('uuid', (uuid) => {
+			this.context().set('qrcode', 'https://login.weixin.qq.com/qrcode/' + uuid);
+		});
+
 		//login
 		instances[config.id].on('login', async () => {
 			this.refresh();
@@ -63,7 +68,8 @@ module.exports = async function (RED) {
 				this.error('login event can not found selfId');
 				return;
 			}
-			//storage
+			this.context().set('qrcode', '');
+			this.context().set('session', instances[config.id].botData);
 		});
 
 		//logout
@@ -74,9 +80,18 @@ module.exports = async function (RED) {
 		//message
 		instances[config.id].on('message', async (msg) => {
 			this.refresh();
-			this.send({topic: msg.MsgType, payload: msg});
+			if (msg.MsgType in types) {
+				this.send({topic: msg.MsgType, payload: msg});
+			}
 		});
 
-		this.start();
+		//error
+		instances[config.id].on('error', async (err) => {
+			this.refresh();
+			this.error(err);
+		});
+
+		//refresh
+		this.refresh();
 	});
 }
