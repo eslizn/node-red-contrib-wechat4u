@@ -59,6 +59,11 @@ module.exports = async function (RED) {
 			this.context().set('qrcode', 'https://login.weixin.qq.com/qrcode/' + uuid);
 		});
 
+		//user-avatar
+		instances[config.id].on('user-avatar', () => {
+			this.refresh();
+		});
+
 		//login
 		instances[config.id].on('login', async () => {
 			this.refresh();
@@ -73,6 +78,11 @@ module.exports = async function (RED) {
 
 		//logout
 		instances[config.id].on('logout', async () => {
+			this.refresh();
+		});
+
+		//contacts-updated
+		instances[config.id].on('contacts-updated', async () => {
 			this.refresh();
 		});
 
