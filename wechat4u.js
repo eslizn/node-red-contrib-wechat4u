@@ -45,8 +45,9 @@ module.exports = async function (RED) {
 		}
 
 		this.on('close', async (removed, done) => {
-			this.context().set('session', wechat.botData);
-			await wechat.stop();
+			if (removed) {
+				await wechat.stop();
+			}
 			done();
 		});
 
@@ -83,6 +84,7 @@ module.exports = async function (RED) {
 		//logout
 		wechat.on('logout', async () => {
 			this.refresh();
+			this.start();
 		});
 
 		//contacts-updated
