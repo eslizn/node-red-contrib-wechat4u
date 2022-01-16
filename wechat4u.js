@@ -27,16 +27,19 @@ module.exports = async function (RED) {
 				this.status({fill: 'green', shape: 'dot', text: 'online'});
 			} else {
 				this.status({fill: 'red', shape: 'ring', text: 'offline'});
-				if (instances[config.id].PROP.uin) {
-					instances[config.id].restart();
-				} else {
-					instances[config.id].start();
-				}
+				this.context().get('session', (err, data) => {
+					instances[config.id].botData = data;
+					if (instances[config.id].PROP.uin) {
+						instances[config.id].restart();
+					} else {
+						instances[config.id].start();
+					}
+				});
 			}
 		}
 
 		if (!(config.id in instances)) {
-			instances[config.id] = new Wechat(this.context().get('session') || []);
+			instances[config.id] = new Wechat();
 		}
 
 		this.on('close', async (removed, done) => {
