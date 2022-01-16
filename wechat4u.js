@@ -82,7 +82,6 @@ module.exports = async function (RED) {
 		//logout
 		wechat.on('logout', async () => {
 			this.refresh();
-			this.start();
 		});
 
 		//contacts-updated
