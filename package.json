@@ -1,7 +1,6 @@
 {
   "name": "node-red-contrib-wechat4u",
   "version": "1.0.0",
-  "main": "index.js",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -13,7 +12,7 @@
     }
   },
   "dependencies": {
-    "wechat4u": "github:eslizn/wechat4u"
+    "wechat4u": "file:./src/wechat4u"
   },
   "description": "",
   "scripts": {
