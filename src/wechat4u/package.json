@@ -5,7 +5,7 @@
   "main": "lib/wechat.js",
   "scripts": {
     "compile": "babel src -d lib -s",
-    "prepublish": "npm run compile",
+    "postinstall": "npm run compile",
     "lint": "eslint src",
     "clean": "rm -rf lib",
     "unit": "mocha test/unit.js --compilers js:babel-core/register",
